@@ -1,12 +1,11 @@
 
-Aqui está o HTML completo com as duas alterações: gráfico descendo mais até embaixo e candles um pouco menores, mantendo o estilo:
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Forex Indicator App</title>
+
 <style>
 *{
   box-sizing:border-box;
@@ -14,16 +13,23 @@ Aqui está o HTML completo com as duas alterações: gráfico descendo mais até
   padding:0;
   font-family:Arial, sans-serif;
 }
+
 html, body{
   min-height:100%;
   background:#050505;
   color:#e6edf3;
 }
+
+body{
+  overflow:hidden;
+}
+
 .app{
   min-height:100vh;
   display:flex;
   flex-direction:column;
 }
+
 .header{
   height:64px;
   background:#070707;
@@ -32,15 +38,19 @@ html, body{
   align-items:center;
   justify-content:space-between;
   padding:0 20px;
+  flex-shrink:0;
 }
+
 .logo{
   font-size:20px;
   font-weight:700;
 }
+
 .controls{
   display:flex;
   gap:10px;
 }
+
 select, button{
   background:#111;
   color:#fff;
@@ -48,46 +58,56 @@ select, button{
   padding:9px 12px;
   border-radius:6px;
 }
+
 button.active{
   background:#00bfa5;
   border-color:#00bfa5;
 }
+
 .main{
   flex:1;
   display:grid;
   grid-template-columns:1fr 280px;
   min-height:0;
 }
+
 .chart-area{
   padding:14px;
   background:#000;
   display:flex;
   flex-direction:column;
+  justify-content:center;
   min-height:0;
 }
+
 .chart-top{
   display:flex;
   justify-content:space-between;
   margin-bottom:10px;
   flex-shrink:0;
 }
+
 .price{
   font-size:24px;
   font-weight:bold;
 }
+
 .change{
   color:#00bfa5;
 }
+
 .chart{
   flex:1;
-  height:calc(100vh - 205px);
-  min-height:650px;
+  height:calc(100vh - 280px);
+  min-height:520px;
+  max-height:760px;
   background:#000;
   border:1px solid #202020;
   border-radius:4px;
   position:relative;
   overflow:hidden;
 }
+
 .chart::before{
   content:"";
   position:absolute;
@@ -98,11 +118,13 @@ button.active{
   background-size:160px 100px;
   pointer-events:none;
 }
+
 .candle-wrap{
   position:absolute;
   width:42px;
   z-index:2;
 }
+
 .wick{
   position:absolute;
   left:50%;
@@ -110,6 +132,7 @@ button.active{
   width:2px;
   border-radius:1px;
 }
+
 .body{
   position:absolute;
   left:0;
@@ -117,14 +140,17 @@ button.active{
   min-height:5px;
   border-radius:1px;
 }
+
 .candle-wrap.green .wick,
 .candle-wrap.green .body{
   background:#12b89f;
 }
+
 .candle-wrap.red .wick,
 .candle-wrap.red .body{
   background:#ff4164;
 }
+
 .price-line{
   position:absolute;
   left:0;
@@ -135,6 +161,7 @@ button.active{
   border-top:1px dashed rgba(255,255,255,0.35);
   z-index:3;
 }
+
 .price-tag{
   position:absolute;
   right:0;
@@ -147,11 +174,14 @@ button.active{
   z-index:4;
   border-radius:2px 0 0 2px;
 }
+
 .sidebar{
   background:#090909;
   border-left:1px solid #202020;
   padding:18px;
+  overflow:auto;
 }
+
 .card{
   background:#141414;
   border:1px solid #2b2b2b;
@@ -159,14 +189,17 @@ button.active{
   padding:16px;
   margin-bottom:14px;
 }
+
 .card h3{
   margin-bottom:12px;
   font-size:16px;
 }
+
 .status{
   color:#00bfa5;
   font-weight:bold;
 }
+
 .signal{
   margin-top:10px;
   padding:10px;
@@ -174,48 +207,67 @@ button.active{
   background:#050505;
   border:1px solid #333;
 }
+
 .footer{
   padding:12px 20px;
   border-top:1px solid #202020;
   color:#8b949e;
   font-size:13px;
   background:#070707;
+  flex-shrink:0;
 }
+
 @media(max-width:800px){
+
+  body{
+    overflow:auto;
+  }
+
   .main{
     grid-template-columns:1fr;
   }
+
   .sidebar{
     border-left:none;
     border-top:1px solid #202020;
   }
+
   .header{
     height:auto;
     flex-direction:column;
     gap:12px;
     padding:14px;
   }
+
   .controls{
     flex-wrap:wrap;
     justify-content:center;
   }
+
   .chart{
     height:calc(100vh - 240px);
-    min-height:620px;
+    min-height:520px;
   }
+
   .candle-wrap{
     width:28px;
   }
+
   .body{
     width:28px;
   }
 }
 </style>
 </head>
+
 <body>
+
 <div class="app">
+
   <header class="header">
+
     <div class="logo">Forex Indicator</div>
+
     <div class="controls">
       <select>
         <option>USD/ZAR (OTC)</option>
@@ -224,60 +276,88 @@ button.active{
         <option>USD/JPY</option>
         <option>USD/BRL</option>
       </select>
+
       <button class="active">1m</button>
       <button>5m</button>
       <button>15m</button>
       <button>1h</button>
     </div>
+
   </header>
+
   <main class="main">
+
     <section class="chart-area">
+
       <div class="chart-top">
         <div>
           <div>USD/ZAR (OTC)</div>
           <div class="price" id="price">16.37928</div>
         </div>
+
         <div class="change">+0.18%</div>
       </div>
+
       <div class="chart" id="chart">
+
         <div class="price-line"></div>
-        <div class="price-tag" id="priceTag">16.37928</div>
+
+        <div class="price-tag" id="priceTag">
+          16.37928
+        </div>
+
       </div>
+
     </section>
+
     <aside class="sidebar">
+
       <div class="card">
         <h3>Market Status</h3>
         <p class="status">Online</p>
       </div>
+
       <div class="card">
         <h3>Your Indicator</h3>
+
         <div class="signal" id="signal">
           Waiting for candle reading...
         </div>
       </div>
+
       <div class="card">
         <h3>Current Candle</h3>
+
         <p id="openValue">Open: 16.37890</p>
         <p id="highValue">High: 16.38060</p>
         <p id="lowValue">Low: 16.37770</p>
         <p id="closeValue">Close: 16.37928</p>
       </div>
+
     </aside>
+
   </main>
+
   <footer class="footer">
     Prototype layout — real Forex API will be connected later.
   </footer>
+
 </div>
+
 <script>
 const chart = document.getElementById("chart");
 const priceText = document.getElementById("price");
 const priceTag = document.getElementById("priceTag");
+
 const signal = document.getElementById("signal");
+
 const openValue = document.getElementById("openValue");
 const highValue = document.getElementById("highValue");
 const lowValue = document.getElementById("lowValue");
 const closeValue = document.getElementById("closeValue");
+
 let price = 16.37928;
+
 const candleData = [
   {type:"green", total:170, body:95, bottom:235, wickTop:30},
   {type:"red", total:210, body:150, bottom:135, wickTop:35},
@@ -291,48 +371,118 @@ const candleData = [
   {type:"green", total:150, body:65, bottom:80, wickTop:45},
   {type:"red", total:180, body:65, bottom:95, wickTop:70}
 ];
+
 function createCandles(){
+
   candleData.forEach((item, index) => {
+
     const candle = document.createElement("div");
-    candle.className = "candle-wrap " + item.type;
-    const candleWidth = window.innerWidth <= 800 ? 28 : 42;
-    const gap = window.innerWidth <= 800 ? 16 : 22;
-    const left = 45 + index * (candleWidth + gap);
-    const bodyBottom = Math.max(item.total - item.body - item.wickTop, 8);
+
+    candle.className =
+      "candle-wrap " + item.type;
+
+    const candleWidth =
+      window.innerWidth <= 800 ? 28 : 42;
+
+    const gap =
+      window.innerWidth <= 800 ? 16 : 22;
+
+    const left =
+      45 + index * (candleWidth + gap);
+
+    const bodyBottom =
+      Math.max(
+        item.total - item.body - item.wickTop,
+        8
+      );
+
     candle.style.left = left + "px";
+
     candle.style.bottom = item.bottom + "px";
+
     candle.style.height = item.total + "px";
+
     candle.innerHTML = `
-      <div class="wick" style="height:${item.total}px; bottom:0;"></div>
-      <div class="body" style="height:${item.body}px; bottom:${bodyBottom}px;"></div>
+      <div class="wick"
+        style="
+          height:${item.total}px;
+          bottom:0;
+        ">
+      </div>
+
+      <div class="body"
+        style="
+          height:${item.body}px;
+          bottom:${bodyBottom}px;
+        ">
+      </div>
     `;
+
     chart.appendChild(candle);
+
   });
+
 }
+
 function updatePrice(){
-  const movement = (Math.random() - 0.5) * 0.0020;
+
+  const movement =
+    (Math.random() - 0.5) * 0.0020;
+
   price += movement;
-  const formatted = price.toFixed(5);
+
+  const formatted =
+    price.toFixed(5);
+
   priceText.textContent = formatted;
+
   priceTag.textContent = formatted;
+
   const open = price - movement;
-  const high = price + Math.random() * 0.0015;
-  const low = price - Math.random() * 0.0015;
+
+  const high =
+    price + Math.random() * 0.0015;
+
+  const low =
+    price - Math.random() * 0.0015;
+
   const close = price;
-  openValue.textContent = "Open: " + open.toFixed(5);
-  highValue.textContent = "High: " + high.toFixed(5);
-  lowValue.textContent = "Low: " + low.toFixed(5);
-  closeValue.textContent = "Close: " + close.toFixed(5);
+
+  openValue.textContent =
+    "Open: " + open.toFixed(5);
+
+  highValue.textContent =
+    "High: " + high.toFixed(5);
+
+  lowValue.textContent =
+    "Low: " + low.toFixed(5);
+
+  closeValue.textContent =
+    "Close: " + close.toFixed(5);
+
   if(movement > 0){
-    signal.textContent = "Bullish candle movement detected";
-    signal.style.borderColor = "#12b89f";
+
+    signal.textContent =
+      "Bullish candle movement detected";
+
+    signal.style.borderColor =
+      "#12b89f";
+
   }else{
-    signal.textContent = "Bearish candle movement detected";
-    signal.style.borderColor = "#ff4164";
+
+    signal.textContent =
+      "Bearish candle movement detected";
+
+    signal.style.borderColor =
+      "#ff4164";
   }
+
 }
+
 createCandles();
+
 setInterval(updatePrice, 1200);
 </script>
+
 </body>
 </html>
