@@ -1,4 +1,4 @@
-Aqui está o HTML inteiro com EUR/USD como padrão. Cole sua API Key nesta linha: const API_KEY = "COLE_SUA_API_KEY_AQUI";
+Aqui está o HTML completo já com sua chave aplicada:
 
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +93,7 @@ button.active{background:#00bfa5;border-color:#00bfa5}
 </footer>
 </div>
 <script>
-const API_KEY = "COLE_SUA_API_KEY_AQUI";
+const API_KEY = "8e71c63cbf244895934f71cbdd64611e";
 const chart = document.getElementById("chart");
 const priceText = document.getElementById("price");
 const priceTag = document.getElementById("priceTag");
@@ -116,10 +116,8 @@ function renderCandles(){
   if(candles.length === 0) return;
   const chartHeight = chart.clientHeight;
   const visible = candles.slice(-18);
-  const highs = visible.map(c => c.high);
-  const lows = visible.map(c => c.low);
-  const maxPrice = Math.max(...highs);
-  const minPrice = Math.min(...lows);
+  const maxPrice = Math.max(...visible.map(c => c.high));
+  const minPrice = Math.min(...visible.map(c => c.low));
   const range = maxPrice - minPrice || 1;
   const candleWidth = 42;
   const gap = 22;
@@ -133,12 +131,12 @@ function renderCandles(){
     const top = Math.min(openY, closeY);
     const bodyHeight = Math.max(Math.abs(closeY - openY), 5);
     const wickHeight = lowY - highY;
+    const bodyTopInside = top - highY;
     const wrap = document.createElement("div");
     wrap.className = "candle-wrap " + (isGreen ? "green" : "red");
     wrap.style.left = startLeft + index * (candleWidth + gap) + "px";
     wrap.style.top = highY + "px";
     wrap.style.height = wickHeight + "px";
-    const bodyTopInside = top - highY;
     wrap.innerHTML = `
       <div class="wick" style="height:${wickHeight}px; top:0;"></div>
       <div class="body" style="height:${bodyHeight}px; top:${bodyTopInside}px;"></div>
@@ -154,25 +152,31 @@ async function loadHistoricalCandles(symbol){
     "&interval=1min" +
     "&outputsize=30" +
     "&apikey=" + API_KEY;
-  const response = await fetch(url);
-  const data = await response.json();
-  if(data.status === "error"){
+  try{
+    const response = await fetch(url);
+    const data = await response.json();
+    if(data.status === "error" || !data.values){
+      marketStatus.textContent = "API error";
+      signal.textContent = data.message || "Error loading data";
+      signal.style.borderColor = "#ff4164";
+      return;
+    }
+    candles = data.values.reverse().map(item => ({
+      time: item.datetime,
+      open: Number(item.open),
+      high: Number(item.high),
+      low: Number(item.low),
+      close: Number(item.close)
+    }));
+    const last = candles[candles.length - 1];
+    updatePanel(last.close, last);
+    renderCandles();
+    marketStatus.textContent = "Online";
+  }catch(error){
     marketStatus.textContent = "API error";
-    signal.textContent = data.message || "Error loading data";
+    signal.textContent = "Could not load Forex data.";
     signal.style.borderColor = "#ff4164";
-    return;
   }
-  candles = data.values.reverse().map(item => ({
-    time: item.datetime,
-    open: Number(item.open),
-    high: Number(item.high),
-    low: Number(item.low),
-    close: Number(item.close)
-  }));
-  const last = candles[candles.length - 1];
-  updatePanel(last.close, last);
-  renderCandles();
-  marketStatus.textContent = "Online";
 }
 function updatePanel(price, candle){
   const formatted = Number(price).toFixed(5);
@@ -192,7 +196,7 @@ function updatePanel(price, candle){
 }
 function updateLiveCandle(newPrice){
   if(candles.length === 0) return;
-  let candle = candles[candles.length - 1];
+  const candle = candles[candles.length - 1];
   candle.close = newPrice;
   candle.high = Math.max(candle.high, newPrice);
   candle.low = Math.min(candle.low, newPrice);
@@ -244,3 +248,5 @@ start(currentSymbol);
 </script>
 </body>
 </html>
+
+Depois de colar, salve e faça commit.
