@@ -1,4 +1,4 @@
-Aqui está o HTML completo com contador do candle de 1 minuto no canto superior direito do gráfico:
+Aqui está o HTML completo atualizado no estilo mais próximo do TradingView, mantendo sua API, EUR/USD padrão, contador da vela e botões de timeframe funcionando:
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +13,7 @@ html,body{height:100%;background:#050505;color:#e6edf3;overflow:hidden}
 .app{height:100vh;display:flex;flex-direction:column;background:#050505}
 .header{height:64px;background:#070707;border-bottom:1px solid #1c1c1c;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
 .logo{font-size:20px;font-weight:700}
-.controls{display:flex;gap:10px}
+.controls{display:flex;gap:10px;align-items:center}
 select,button{background:#111;color:#fff;border:1px solid #333;padding:9px 12px;border-radius:6px}
 button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
 .main{flex:1;display:grid;grid-template-columns:1fr 280px;min-height:0}
@@ -43,10 +43,10 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
       <option value="USD/BRL">USD/BRL</option>
       <option value="USD/ZAR">USD/ZAR</option>
     </select>
-    <button class="active">1m</button>
-    <button>5m</button>
-    <button>15m</button>
-    <button>1h</button>
+    <button class="tf active" data-interval="1min" data-seconds="60">1m</button>
+    <button class="tf" data-interval="5min" data-seconds="300">5m</button>
+    <button class="tf" data-interval="15min" data-seconds="900">15m</button>
+    <button class="tf" data-interval="1h" data-seconds="3600">1h</button>
     <button id="goLive">Go Live</button>
   </div>
 </header>
@@ -101,26 +101,35 @@ const lowValue = document.getElementById("lowValue");
 const closeValue = document.getElementById("closeValue");
 let socket = null;
 let currentSymbol = "EUR/USD";
+let currentInterval = "1min";
+let currentIntervalSeconds = 60;
 let candles = [];
 const chart = LightweightCharts.createChart(chartContainer, {
-  layout:{background:{color:"#000000"},textColor:"#8b949e"},
+  layout:{
+    background:{color:"#000000"},
+    textColor:"#8b949e"
+  },
   grid:{
     vertLines:{color:"rgba(255,255,255,0.08)"},
     horzLines:{color:"rgba(255,255,255,0.08)"}
   },
-  crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
+  crosshair:{
+    mode:LightweightCharts.CrosshairMode.Normal,
+    vertLine:{color:"rgba(255,255,255,0.35)",width:1,style:2},
+    horzLine:{color:"rgba(255,255,255,0.35)",width:1,style:2}
+  },
   rightPriceScale:{
     borderColor:"#202020",
     visible:true,
     autoScale:true,
-    scaleMargins:{top:0.18,bottom:0.18}
+    scaleMargins:{top:0.16,bottom:0.16}
   },
   timeScale:{
     borderColor:"#202020",
     timeVisible:true,
     secondsVisible:false,
-    rightOffset:28,
-    barSpacing:24,
+    rightOffset:24,
+    barSpacing:18,
     fixLeftEdge:false,
     fixRightEdge:false
   },
@@ -136,14 +145,6 @@ const chart = LightweightCharts.createChart(chartContainer, {
     pinch:true
   }
 });
-chart.priceScale("right").applyOptions({
-  autoScale:true,
-  scaleMargins:{top:0.18,bottom:0.18}
-});
-chart.timeScale().applyOptions({
-  barSpacing:24,
-  rightOffset:28
-});
 const candleSeries = chart.addCandlestickSeries({
   priceScaleId:"right",
   upColor:"#12b89f",
@@ -153,17 +154,22 @@ const candleSeries = chart.addCandlestickSeries({
   wickUpColor:"#12b89f",
   wickDownColor:"#ff4164",
   priceLineVisible:true,
-  priceLineColor:"rgba(255,255,255,0.7)",
+  priceLineColor:"rgba(255,255,255,0.75)",
   priceLineWidth:1,
   priceFormat:{type:"price",precision:5,minMove:0.00001}
 });
 function toUnixTime(datetime){
   return Math.floor(new Date(datetime.replace(" ","T") + "Z").getTime() / 1000);
 }
+function formatTimer(seconds){
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
 function updateCandleTimer(){
   const now = Math.floor(Date.now() / 1000);
-  const secondsLeft = 60 - (now % 60);
-  candleTimer.textContent = "00:" + String(secondsLeft).padStart(2,"0");
+  const secondsLeft = currentIntervalSeconds - (now % currentIntervalSeconds);
+  candleTimer.textContent = formatTimer(secondsLeft);
 }
 setInterval(updateCandleTimer, 1000);
 updateCandleTimer();
@@ -187,8 +193,8 @@ async function loadHistoricalCandles(symbol){
   const url =
     "https://api.twelvedata.com/time_series" +
     "?symbol=" + encodeURIComponent(symbol) +
-    "&interval=1min" +
-    "&outputsize=120" +
+    "&interval=" + currentInterval +
+    "&outputsize=160" +
     "&apikey=" + API_KEY;
   try{
     const response = await fetch(url);
@@ -200,16 +206,20 @@ async function loadHistoricalCandles(symbol){
       return;
     }
     candles = data.values.reverse().map(item => ({
-      time: toUnixTime(item.datetime),
-      open: Number(item.open),
-      high: Number(item.high),
-      low: Number(item.low),
-      close: Number(item.close)
+      time:toUnixTime(item.datetime),
+      open:Number(item.open),
+      high:Number(item.high),
+      low:Number(item.low),
+      close:Number(item.close)
     }));
     candleSeries.setData(candles);
     const last = candles[candles.length - 1];
     updatePanel(last);
     chart.timeScale().fitContent();
+    chart.timeScale().applyOptions({
+      rightOffset:24,
+      barSpacing:18
+    });
     chart.timeScale().scrollToRealTime();
     marketStatus.textContent = "Online";
   }catch(error){
@@ -221,11 +231,11 @@ async function loadHistoricalCandles(symbol){
 function updateLivePrice(newPrice){
   if(candles.length === 0) return;
   const now = Math.floor(Date.now() / 1000);
-  const currentMinute = Math.floor(now / 60) * 60;
+  const currentCandleTime = Math.floor(now / currentIntervalSeconds) * currentIntervalSeconds;
   let last = candles[candles.length - 1];
-  if(currentMinute > last.time){
+  if(currentCandleTime > last.time){
     last = {
-      time:currentMinute,
+      time:currentCandleTime,
       open:last.close,
       high:newPrice,
       low:newPrice,
@@ -275,6 +285,16 @@ async function start(symbol){
   await loadHistoricalCandles(symbol);
   connectWebSocket(symbol);
 }
+document.querySelectorAll(".tf").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".tf").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+    currentInterval = button.dataset.interval;
+    currentIntervalSeconds = Number(button.dataset.seconds);
+    updateCandleTimer();
+    start(currentSymbol);
+  });
+});
 goLive.addEventListener("click", () => {
   chart.timeScale().scrollToRealTime();
 });
