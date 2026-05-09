@@ -1,3 +1,5 @@
+Aqui está o HTML completo com a vela virando automaticamente no tempo certo:
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,7 +50,6 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
     <button id="goLive">Go Live</button>
   </div>
 </header>
-
 <main class="main">
 <section class="chart-area">
   <div class="chart-top">
@@ -58,12 +59,10 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
     </div>
     <div class="change">Live</div>
   </div>
-
   <div class="chart-box" id="chart">
     <div class="candle-timer" id="candleTimer">00:--</div>
   </div>
 </section>
-
 <aside class="sidebar">
   <div class="card">
     <h3>Market Status</h3>
@@ -82,15 +81,12 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
   </div>
 </aside>
 </main>
-
 <footer class="footer">
   Live Forex prototype — TradingView Lightweight Charts + Twelve Data.
 </footer>
 </div>
-
 <script>
 const API_KEY = "8e71c63cbf244895934f71cbdd64611e";
-
 const chartContainer = document.getElementById("chart");
 const pairSelect = document.getElementById("pairSelect");
 const pairName = document.getElementById("pairName");
@@ -99,18 +95,15 @@ const marketStatus = document.getElementById("marketStatus");
 const signal = document.getElementById("signal");
 const goLive = document.getElementById("goLive");
 const candleTimer = document.getElementById("candleTimer");
-
 const openValue = document.getElementById("openValue");
 const highValue = document.getElementById("highValue");
 const lowValue = document.getElementById("lowValue");
 const closeValue = document.getElementById("closeValue");
-
 let socket = null;
 let currentSymbol = "EUR/USD";
 let currentInterval = "1min";
 let currentIntervalSeconds = 60;
 let candles = [];
-
 const chart = LightweightCharts.createChart(chartContainer, {
   layout:{
     background:{color:"#000000"},
@@ -152,7 +145,6 @@ const chart = LightweightCharts.createChart(chartContainer, {
     pinch:true
   }
 });
-
 const candleSeries = chart.addCandlestickSeries({
   priceScaleId:"right",
   upColor:"#12b89f",
@@ -166,33 +158,49 @@ const candleSeries = chart.addCandlestickSeries({
   priceLineWidth:1,
   priceFormat:{type:"price",precision:5,minMove:0.00001}
 });
-
 function toUnixTime(datetime){
   return Math.floor(new Date(datetime.replace(" ","T") + "Z").getTime() / 1000);
 }
-
 function formatTimer(seconds){
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
 }
-
 function updateCandleTimer(){
   const now = Math.floor(Date.now() / 1000);
   const secondsLeft = currentIntervalSeconds - (now % currentIntervalSeconds);
   candleTimer.textContent = formatTimer(secondsLeft);
 }
-
-setInterval(updateCandleTimer, 1000);
+function forceNextCandleIfNeeded(){
+  if(candles.length === 0) return;
+  const now = Math.floor(Date.now() / 1000);
+  const currentCandleTime =
+    Math.floor(now / currentIntervalSeconds) * currentIntervalSeconds;
+  const last = candles[candles.length - 1];
+  if(currentCandleTime > last.time){
+    const newCandle = {
+      time: currentCandleTime,
+      open: last.close,
+      high: last.close,
+      low: last.close,
+      close: last.close
+    };
+    candles.push(newCandle);
+    candleSeries.update(newCandle);
+    updatePanel(newCandle);
+  }
+}
+setInterval(() => {
+  updateCandleTimer();
+  forceNextCandleIfNeeded();
+}, 1000);
 updateCandleTimer();
-
 function updatePanel(candle){
   priceText.textContent = candle.close.toFixed(5);
   openValue.textContent = "Open: " + candle.open.toFixed(5);
   highValue.textContent = "High: " + candle.high.toFixed(5);
   lowValue.textContent = "Low: " + candle.low.toFixed(5);
   closeValue.textContent = "Close: " + candle.close.toFixed(5);
-
   if(candle.close >= candle.open){
     signal.textContent = "Bullish candle movement detected";
     signal.style.borderColor = "#12b89f";
@@ -201,28 +209,23 @@ function updatePanel(candle){
     signal.style.borderColor = "#ff4164";
   }
 }
-
 async function loadHistoricalCandles(symbol){
   marketStatus.textContent = "Loading candles...";
-
   const url =
     "https://api.twelvedata.com/time_series" +
     "?symbol=" + encodeURIComponent(symbol) +
     "&interval=" + currentInterval +
     "&outputsize=160" +
     "&apikey=" + API_KEY;
-
   try{
     const response = await fetch(url);
     const data = await response.json();
-
     if(data.status === "error" || !data.values){
       marketStatus.textContent = "API error";
       signal.textContent = data.message || "Error loading data";
       signal.style.borderColor = "#ff4164";
       return;
     }
-
     candles = data.values.reverse().map(item => ({
       time:toUnixTime(item.datetime),
       open:Number(item.open),
@@ -230,36 +233,27 @@ async function loadHistoricalCandles(symbol){
       low:Number(item.low),
       close:Number(item.close)
     }));
-
     candleSeries.setData(candles);
-
     const last = candles[candles.length - 1];
     updatePanel(last);
-
     chart.timeScale().applyOptions({
       rightOffset:24,
       barSpacing:20
     });
-
     chart.timeScale().scrollToRealTime();
-
     marketStatus.textContent = "Online";
-
   }catch(error){
     marketStatus.textContent = "API error";
     signal.textContent = "Could not load Forex data.";
     signal.style.borderColor = "#ff4164";
   }
 }
-
 function updateLivePrice(newPrice){
   if(candles.length === 0) return;
-
   const now = Math.floor(Date.now() / 1000);
-  const currentCandleTime = Math.floor(now / currentIntervalSeconds) * currentIntervalSeconds;
-
+  const currentCandleTime =
+    Math.floor(now / currentIntervalSeconds) * currentIntervalSeconds;
   let last = candles[candles.length - 1];
-
   if(currentCandleTime > last.time){
     last = {
       time:currentCandleTime,
@@ -274,20 +268,15 @@ function updateLivePrice(newPrice){
     last.high = Math.max(last.high, newPrice);
     last.low = Math.min(last.low, newPrice);
   }
-
   candleSeries.update(last);
   updatePanel(last);
 }
-
 function connectWebSocket(symbol){
   if(socket){socket.close()}
-
   marketStatus.textContent = "Connecting...";
-
   socket = new WebSocket(
     "wss://ws.twelvedata.com/v1/quotes/price?apikey=" + API_KEY
   );
-
   socket.onopen = () => {
     marketStatus.textContent = "Online";
     socket.send(JSON.stringify({
@@ -295,67 +284,54 @@ function connectWebSocket(symbol){
       params:{symbols:symbol}
     }));
   };
-
   socket.onmessage = event => {
     const data = JSON.parse(event.data);
     if(data.event === "price" && data.price){
       updateLivePrice(Number(data.price));
     }
   };
-
   socket.onerror = () => {
     marketStatus.textContent = "Connection error";
   };
-
   socket.onclose = () => {
     marketStatus.textContent = "Disconnected";
   };
 }
-
 async function start(symbol){
   currentSymbol = symbol;
   pairName.textContent = symbol;
   pairSelect.value = symbol;
   candles = [];
   candleSeries.setData([]);
-
   await loadHistoricalCandles(symbol);
   connectWebSocket(symbol);
 }
-
 document.querySelectorAll(".tf").forEach(button => {
   button.addEventListener("click", () => {
     document.querySelectorAll(".tf").forEach(btn => btn.classList.remove("active"));
     button.classList.add("active");
-
     currentInterval = button.dataset.interval;
     currentIntervalSeconds = Number(button.dataset.seconds);
-
     updateCandleTimer();
     start(currentSymbol);
   });
 });
-
 goLive.addEventListener("click", () => {
   chart.timeScale().scrollToRealTime();
 });
-
 pairSelect.addEventListener("change", () => {
   start(pairSelect.value);
 });
-
 window.addEventListener("resize", () => {
   chart.applyOptions({
     width:chartContainer.clientWidth,
     height:chartContainer.clientHeight
   });
 });
-
 chart.applyOptions({
   width:chartContainer.clientWidth,
   height:chartContainer.clientHeight
 });
-
 start(currentSymbol);
 </script>
 </body>
