@@ -1,4 +1,4 @@
-Aqui está o HTML completo atualizado no estilo mais próximo do TradingView, mantendo sua API, EUR/USD padrão, contador da vela e botões de timeframe funcionando:
+Aqui está o código pronto com o ajuste para mostrar mais histórico e deixar o gráfico com movimento mais parecido com TradingView:
 
 <!DOCTYPE html>
 <html lang="en">
@@ -122,14 +122,14 @@ const chart = LightweightCharts.createChart(chartContainer, {
     borderColor:"#202020",
     visible:true,
     autoScale:true,
-    scaleMargins:{top:0.16,bottom:0.16}
+    scaleMargins:{top:0.12,bottom:0.12}
   },
   timeScale:{
     borderColor:"#202020",
     timeVisible:true,
     secondsVisible:false,
-    rightOffset:24,
-    barSpacing:18,
+    rightOffset:18,
+    barSpacing:9,
     fixLeftEdge:false,
     fixRightEdge:false
   },
@@ -174,8 +174,7 @@ function updateCandleTimer(){
 setInterval(updateCandleTimer, 1000);
 updateCandleTimer();
 function updatePanel(candle){
-  const formatted = candle.close.toFixed(5);
-  priceText.textContent = formatted;
+  priceText.textContent = candle.close.toFixed(5);
   openValue.textContent = "Open: " + candle.open.toFixed(5);
   highValue.textContent = "High: " + candle.high.toFixed(5);
   lowValue.textContent = "Low: " + candle.low.toFixed(5);
@@ -194,7 +193,7 @@ async function loadHistoricalCandles(symbol){
     "https://api.twelvedata.com/time_series" +
     "?symbol=" + encodeURIComponent(symbol) +
     "&interval=" + currentInterval +
-    "&outputsize=160" +
+    "&outputsize=500" +
     "&apikey=" + API_KEY;
   try{
     const response = await fetch(url);
@@ -217,8 +216,8 @@ async function loadHistoricalCandles(symbol){
     updatePanel(last);
     chart.timeScale().fitContent();
     chart.timeScale().applyOptions({
-      rightOffset:24,
-      barSpacing:18
+      rightOffset:18,
+      barSpacing:9
     });
     chart.timeScale().scrollToRealTime();
     marketStatus.textContent = "Online";
