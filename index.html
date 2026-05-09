@@ -1,4 +1,4 @@
-Aqui está o HTML completo já com sua chave aplicada:
+Aqui está o HTML completo com espaço extra à direita depois do último candle:
 
 <!DOCTYPE html>
 <html lang="en">
@@ -115,13 +115,22 @@ function renderCandles(){
   clearCandles();
   if(candles.length === 0) return;
   const chartHeight = chart.clientHeight;
-  const visible = candles.slice(-18);
+  /*
+    Aqui está o ajuste:
+    antes era candles.slice(-18)
+    agora usamos menos candles para deixar espaço vazio à direita.
+  */
+  const visible = candles.slice(-14);
   const maxPrice = Math.max(...visible.map(c => c.high));
   const minPrice = Math.min(...visible.map(c => c.low));
   const range = maxPrice - minPrice || 1;
   const candleWidth = 42;
   const gap = 22;
-  const startLeft = 45;
+  /*
+    Aqui também está o ajuste:
+    aumentamos o startLeft para o gráfico respirar melhor.
+  */
+  const startLeft = 70;
   visible.forEach((candle, index) => {
     const isGreen = candle.close >= candle.open;
     const highY = ((maxPrice - candle.high) / range) * (chartHeight - 120) + 60;
@@ -248,5 +257,3 @@ start(currentSymbol);
 </script>
 </body>
 </html>
-
-Depois de colar, salve e faça commit.
