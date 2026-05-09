@@ -1,11 +1,10 @@
-Aqui está o HTML completo com espaço extra à direita depois do último candle:
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Forex Indicator App</title>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 html,body{min-height:100%;background:#050505;color:#e6edf3}
@@ -15,21 +14,92 @@ body{overflow:hidden}
 .logo{font-size:20px;font-weight:700}
 .controls{display:flex;gap:10px}
 select,button{background:#111;color:#fff;border:1px solid #333;padding:9px 12px;border-radius:6px}
-button.active{background:#00bfa5;border-color:#00bfa5}
+button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
 .main{flex:1;display:grid;grid-template-columns:1fr 280px;min-height:0}
 .chart-area{padding:14px;background:#000;display:flex;flex-direction:column;justify-content:center;min-height:0}
 .chart-top{display:flex;justify-content:space-between;margin-bottom:10px;flex-shrink:0}
 .price{font-size:24px;font-weight:bold}
 .change{color:#00bfa5}
-.chart{flex:1;height:calc(100vh - 280px);min-height:520px;max-height:760px;background:#000;border:1px solid #202020;border-radius:4px;position:relative;overflow:hidden}
-.chart::before{content:"";position:absolute;inset:0;background:linear-gradient(to right,rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.08) 1px,transparent 1px);background-size:160px 100px;pointer-events:none}
-.candle-wrap{position:absolute;width:42px;z-index:2}
-.wick{position:absolute;left:50%;transform:translateX(-50%);width:2px;border-radius:1px}
-.body{position:absolute;left:0;width:42px;min-height:5px;border-radius:1px}
-.candle-wrap.green .wick,.candle-wrap.green .body{background:#12b89f}
-.candle-wrap.red .wick,.candle-wrap.red .body{background:#ff4164}
-.price-line{position:absolute;left:0;right:0;top:55%;height:1px;background:rgba(255,255,255,.55);border-top:1px dashed rgba(255,255,255,.35);z-index:3}
-.price-tag{position:absolute;right:0;top:calc(55% - 15px);background:#d7d7d7;color:#222;padding:7px 14px;font-size:14px;font-weight:bold;z-index:4;border-radius:2px 0 0 2px}
+
+.chart{
+  flex:1;
+  height:calc(100vh - 280px);
+  min-height:520px;
+  max-height:760px;
+  background:#000;
+  border:1px solid #202020;
+  border-radius:4px;
+  position:relative;
+  overflow:hidden;
+  touch-action:none;
+  cursor:grab;
+}
+
+.chart:active{cursor:grabbing}
+
+.chart::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(to right,rgba(255,255,255,.08) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(255,255,255,.08) 1px,transparent 1px);
+  background-size:160px 100px;
+  pointer-events:none;
+}
+
+.candle-wrap{
+  position:absolute;
+  width:26px;
+  z-index:2;
+}
+
+.wick{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:2px;
+  border-radius:1px;
+}
+
+.body{
+  position:absolute;
+  left:0;
+  width:26px;
+  min-height:5px;
+  border-radius:1px;
+}
+
+.candle-wrap.green .wick,
+.candle-wrap.green .body{background:#12b89f}
+
+.candle-wrap.red .wick,
+.candle-wrap.red .body{background:#ff4164}
+
+.price-line{
+  position:absolute;
+  left:0;
+  right:0;
+  top:55%;
+  height:1px;
+  background:rgba(255,255,255,.55);
+  border-top:1px dashed rgba(255,255,255,.35);
+  z-index:3;
+}
+
+.price-tag{
+  position:absolute;
+  right:0;
+  top:calc(55% - 15px);
+  background:#d7d7d7;
+  color:#222;
+  padding:7px 14px;
+  font-size:14px;
+  font-weight:bold;
+  z-index:4;
+  border-radius:2px 0 0 2px;
+}
+
 .sidebar{background:#090909;border-left:1px solid #202020;padding:18px;overflow:auto}
 .card{background:#141414;border:1px solid #2b2b2b;border-radius:8px;padding:16px;margin-bottom:14px}
 .card h3{margin-bottom:12px;font-size:16px}
@@ -38,8 +108,10 @@ button.active{background:#00bfa5;border-color:#00bfa5}
 .footer{padding:12px 20px;border-top:1px solid #202020;color:#8b949e;font-size:13px;background:#070707;flex-shrink:0}
 </style>
 </head>
+
 <body>
 <div class="app">
+
 <header class="header">
   <div class="logo">Forex Indicator</div>
   <div class="controls">
@@ -54,8 +126,10 @@ button.active{background:#00bfa5;border-color:#00bfa5}
     <button>5m</button>
     <button>15m</button>
     <button>1h</button>
+    <button id="goLive">Go Live</button>
   </div>
 </header>
+
 <main class="main">
 <section class="chart-area">
   <div class="chart-top">
@@ -65,20 +139,24 @@ button.active{background:#00bfa5;border-color:#00bfa5}
     </div>
     <div class="change" id="change">Live</div>
   </div>
+
   <div class="chart" id="chart">
     <div class="price-line"></div>
     <div class="price-tag" id="priceTag">--</div>
   </div>
 </section>
+
 <aside class="sidebar">
   <div class="card">
     <h3>Market Status</h3>
     <p class="status" id="marketStatus">Connecting...</p>
   </div>
+
   <div class="card">
     <h3>Your Indicator</h3>
     <div class="signal" id="signal">Waiting for live candle...</div>
   </div>
+
   <div class="card">
     <h3>Current Candle</h3>
     <p id="openValue">Open: --</p>
@@ -88,12 +166,15 @@ button.active{background:#00bfa5;border-color:#00bfa5}
   </div>
 </aside>
 </main>
+
 <footer class="footer">
   Live Forex prototype — connected to Twelve Data.
 </footer>
 </div>
+
 <script>
 const API_KEY = "8e71c63cbf244895934f71cbdd64611e";
+
 const chart = document.getElementById("chart");
 const priceText = document.getElementById("price");
 const priceTag = document.getElementById("priceTag");
@@ -101,75 +182,110 @@ const signal = document.getElementById("signal");
 const pairSelect = document.getElementById("pairSelect");
 const pairName = document.getElementById("pairName");
 const marketStatus = document.getElementById("marketStatus");
+const goLive = document.getElementById("goLive");
+
 const openValue = document.getElementById("openValue");
 const highValue = document.getElementById("highValue");
 const lowValue = document.getElementById("lowValue");
 const closeValue = document.getElementById("closeValue");
+
 let candles = [];
 let socket = null;
 let currentSymbol = "EUR/USD";
+
+let viewOffset = 0;
+const candlesPerView = 10;
+
+let isDragging = false;
+let dragStartX = 0;
+let dragAccumulator = 0;
+
 function clearCandles(){
   document.querySelectorAll(".candle-wrap").forEach(c => c.remove());
 }
+
+function clampViewOffset(){
+  const maxOffset = Math.max(0, candles.length - candlesPerView);
+  viewOffset = Math.max(0, Math.min(viewOffset, maxOffset));
+}
+
+function getVisibleCandles(){
+  clampViewOffset();
+
+  const end = candles.length - viewOffset;
+  const start = Math.max(0, end - candlesPerView);
+
+  return candles.slice(start, end);
+}
+
 function renderCandles(){
   clearCandles();
+
   if(candles.length === 0) return;
+
   const chartHeight = chart.clientHeight;
-  /*
-    Aqui está o ajuste:
-    antes era candles.slice(-18)
-    agora usamos menos candles para deixar espaço vazio à direita.
-  */
-  const visible = candles.slice(-14);
+  const visible = getVisibleCandles();
+
+  if(visible.length === 0) return;
+
   const maxPrice = Math.max(...visible.map(c => c.high));
   const minPrice = Math.min(...visible.map(c => c.low));
   const range = maxPrice - minPrice || 1;
-  const candleWidth = 42;
-  const gap = 22;
-  /*
-    Aqui também está o ajuste:
-    aumentamos o startLeft para o gráfico respirar melhor.
-  */
-  const startLeft = 70;
+
+  const candleWidth = 26;
+  const gap = 34;
+  const startLeft = 140;
+
   visible.forEach((candle, index) => {
     const isGreen = candle.close >= candle.open;
+
     const highY = ((maxPrice - candle.high) / range) * (chartHeight - 120) + 60;
     const lowY = ((maxPrice - candle.low) / range) * (chartHeight - 120) + 60;
     const openY = ((maxPrice - candle.open) / range) * (chartHeight - 120) + 60;
     const closeY = ((maxPrice - candle.close) / range) * (chartHeight - 120) + 60;
+
     const top = Math.min(openY, closeY);
     const bodyHeight = Math.max(Math.abs(closeY - openY), 5);
-    const wickHeight = lowY - highY;
+    const wickHeight = Math.max(lowY - highY, 5);
     const bodyTopInside = top - highY;
+
     const wrap = document.createElement("div");
     wrap.className = "candle-wrap " + (isGreen ? "green" : "red");
+
     wrap.style.left = startLeft + index * (candleWidth + gap) + "px";
     wrap.style.top = highY + "px";
     wrap.style.height = wickHeight + "px";
+
     wrap.innerHTML = `
       <div class="wick" style="height:${wickHeight}px; top:0;"></div>
       <div class="body" style="height:${bodyHeight}px; top:${bodyTopInside}px;"></div>
     `;
+
     chart.appendChild(wrap);
   });
 }
+
 async function loadHistoricalCandles(symbol){
   marketStatus.textContent = "Loading candles...";
+
   const url =
     "https://api.twelvedata.com/time_series" +
     "?symbol=" + encodeURIComponent(symbol) +
     "&interval=1min" +
-    "&outputsize=30" +
+    "&outputsize=100" +
     "&apikey=" + API_KEY;
+
   try{
     const response = await fetch(url);
     const data = await response.json();
+
     if(data.status === "error" || !data.values){
       marketStatus.textContent = "API error";
       signal.textContent = data.message || "Error loading data";
       signal.style.borderColor = "#ff4164";
       return;
     }
+
     candles = data.values.reverse().map(item => ({
       time: item.datetime,
       open: Number(item.open),
@@ -177,24 +293,34 @@ async function loadHistoricalCandles(symbol){
       low: Number(item.low),
       close: Number(item.close)
     }));
+
+    viewOffset = 0;
+
     const last = candles[candles.length - 1];
+
     updatePanel(last.close, last);
     renderCandles();
+
     marketStatus.textContent = "Online";
+
   }catch(error){
     marketStatus.textContent = "API error";
     signal.textContent = "Could not load Forex data.";
     signal.style.borderColor = "#ff4164";
   }
 }
+
 function updatePanel(price, candle){
   const formatted = Number(price).toFixed(5);
+
   priceText.textContent = formatted;
   priceTag.textContent = formatted;
+
   openValue.textContent = "Open: " + candle.open.toFixed(5);
   highValue.textContent = "High: " + candle.high.toFixed(5);
   lowValue.textContent = "Low: " + candle.low.toFixed(5);
   closeValue.textContent = "Close: " + candle.close.toFixed(5);
+
   if(candle.close >= candle.open){
     signal.textContent = "Bullish candle movement detected";
     signal.style.borderColor = "#12b89f";
@@ -203,25 +329,37 @@ function updatePanel(price, candle){
     signal.style.borderColor = "#ff4164";
   }
 }
+
 function updateLiveCandle(newPrice){
   if(candles.length === 0) return;
+
   const candle = candles[candles.length - 1];
+
   candle.close = newPrice;
   candle.high = Math.max(candle.high, newPrice);
   candle.low = Math.min(candle.low, newPrice);
+
   updatePanel(newPrice, candle);
-  renderCandles();
+
+  if(viewOffset === 0){
+    renderCandles();
+  }
 }
+
 function connectWebSocket(symbol){
   if(socket){
     socket.close();
   }
+
   marketStatus.textContent = "Connecting...";
+
   socket = new WebSocket(
     "wss://ws.twelvedata.com/v1/quotes/price?apikey=" + API_KEY
   );
+
   socket.onopen = () => {
     marketStatus.textContent = "Online";
+
     socket.send(JSON.stringify({
       action: "subscribe",
       params: {
@@ -229,31 +367,108 @@ function connectWebSocket(symbol){
       }
     }));
   };
+
   socket.onmessage = event => {
     const data = JSON.parse(event.data);
+
     if(data.event === "price" && data.price){
       updateLiveCandle(Number(data.price));
     }
   };
+
   socket.onerror = () => {
     marketStatus.textContent = "Connection error";
   };
+
   socket.onclose = () => {
     marketStatus.textContent = "Disconnected";
   };
 }
+
 async function start(symbol){
   currentSymbol = symbol;
   pairName.textContent = symbol;
   pairSelect.value = symbol;
+
   await loadHistoricalCandles(symbol);
   connectWebSocket(symbol);
 }
+
+function moveChartByPixels(deltaX){
+  const stepSize = 60;
+  dragAccumulator += deltaX;
+
+  const steps = Math.trunc(dragAccumulator / stepSize);
+
+  if(steps !== 0){
+    viewOffset += steps;
+    clampViewOffset();
+    renderCandles();
+
+    dragAccumulator -= steps * stepSize;
+  }
+}
+
+chart.addEventListener("pointerdown", event => {
+  isDragging = true;
+  dragStartX = event.clientX;
+  dragAccumulator = 0;
+  chart.setPointerCapture(event.pointerId);
+});
+
+chart.addEventListener("pointermove", event => {
+  if(!isDragging) return;
+
+  const deltaX = event.clientX - dragStartX;
+  dragStartX = event.clientX;
+
+  moveChartByPixels(deltaX);
+});
+
+chart.addEventListener("pointerup", event => {
+  isDragging = false;
+  dragAccumulator = 0;
+  chart.releasePointerCapture(event.pointerId);
+});
+
+chart.addEventListener("pointercancel", () => {
+  isDragging = false;
+  dragAccumulator = 0;
+});
+
+chart.addEventListener("wheel", event => {
+  event.preventDefault();
+
+  if(event.deltaY > 0 || event.deltaX > 0){
+    viewOffset = Math.max(0, viewOffset - 1);
+  }else{
+    viewOffset += 1;
+  }
+
+  clampViewOffset();
+  renderCandles();
+}, { passive:false });
+
+goLive.addEventListener("click", () => {
+  viewOffset = 0;
+
+  const last = candles[candles.length - 1];
+
+  if(last){
+    updatePanel(last.close, last);
+  }
+
+  renderCandles();
+});
+
 pairSelect.addEventListener("change", () => {
   start(pairSelect.value);
 });
+
 window.addEventListener("resize", renderCandles);
+
 start(currentSymbol);
 </script>
+
 </body>
 </html>
