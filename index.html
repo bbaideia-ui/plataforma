@@ -1,5 +1,5 @@
 
-Aqui está o index.html inteiro atualizado com candlesticks reais com corpo e pavio, mais parecido com gráfico de trade:
+Aqui está o index.html inteiro atualizado com candles maiores, fundo preto e estilo mais parecido com o print:
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +15,7 @@ Aqui está o index.html inteiro atualizado com candlesticks reais com corpo e pa
   font-family:Arial, sans-serif;
 }
 body{
-  background:#0f1720;
+  background:#050505;
   color:#e6edf3;
 }
 .app{
@@ -25,8 +25,8 @@ body{
 }
 .header{
   height:64px;
-  background:#111c27;
-  border-bottom:1px solid #263445;
+  background:#070707;
+  border-bottom:1px solid #1c1c1c;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -41,15 +41,15 @@ body{
   gap:10px;
 }
 select, button{
-  background:#182536;
+  background:#111;
   color:#fff;
-  border:1px solid #34465c;
+  border:1px solid #333;
   padding:9px 12px;
-  border-radius:8px;
+  border-radius:6px;
 }
 button.active{
-  background:#0ea5e9;
-  border-color:#0ea5e9;
+  background:#00bfa5;
+  border-color:#00bfa5;
 }
 .main{
   flex:1;
@@ -57,87 +57,97 @@ button.active{
   grid-template-columns:1fr 280px;
 }
 .chart-area{
-  padding:18px;
+  padding:14px;
+  background:#000;
 }
 .chart-top{
   display:flex;
   justify-content:space-between;
-  margin-bottom:12px;
+  margin-bottom:10px;
 }
 .price{
   font-size:24px;
   font-weight:bold;
 }
 .change{
-  color:#22c55e;
+  color:#00bfa5;
 }
 .chart{
-  height:520px;
-  background:linear-gradient(180deg,#111c27,#0b1118);
-  border:1px solid #263445;
-  border-radius:14px;
+  height:560px;
+  background:#000;
+  border:1px solid #202020;
+  border-radius:4px;
   position:relative;
   overflow:hidden;
 }
-.grid-line{
+.chart::before{
+  content:"";
   position:absolute;
-  left:0;
-  width:100%;
-  height:1px;
-  background:rgba(255,255,255,0.06);
+  inset:0;
+  background:
+    linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size:160px 100px;
+  pointer-events:none;
 }
 .candle-wrap{
   position:absolute;
-  width:14px;
+  width:52px;
+  z-index:2;
 }
 .wick{
   position:absolute;
   left:50%;
   transform:translateX(-50%);
   width:2px;
-  border-radius:2px;
+  border-radius:1px;
 }
 .body{
   position:absolute;
   left:0;
-  width:14px;
-  min-height:6px;
-  border-radius:2px;
+  width:52px;
+  min-height:5px;
+  border-radius:1px;
 }
 .candle-wrap.green .wick,
 .candle-wrap.green .body{
-  background:#22c55e;
+  background:#12b89f;
 }
 .candle-wrap.red .wick,
 .candle-wrap.red .body{
-  background:#ef4444;
+  background:#ff4164;
 }
 .price-line{
   position:absolute;
   left:0;
   right:0;
-  top:48%;
+  top:58%;
   height:1px;
-  background:#0ea5e9;
+  background:rgba(255,255,255,0.55);
+  border-top:1px dashed rgba(255,255,255,0.35);
+  z-index:3;
 }
 .price-tag{
   position:absolute;
-  right:12px;
-  top:calc(48% - 14px);
-  background:#0ea5e9;
-  padding:5px 8px;
-  border-radius:6px;
-  font-size:13px;
+  right:0;
+  top:calc(58% - 15px);
+  background:#d7d7d7;
+  color:#222;
+  padding:7px 14px;
+  font-size:14px;
+  font-weight:bold;
+  z-index:4;
+  border-radius:2px 0 0 2px;
 }
 .sidebar{
-  background:#111c27;
-  border-left:1px solid #263445;
+  background:#090909;
+  border-left:1px solid #202020;
   padding:18px;
 }
 .card{
-  background:#172334;
-  border:1px solid #263445;
-  border-radius:14px;
+  background:#141414;
+  border:1px solid #2b2b2b;
+  border-radius:8px;
   padding:16px;
   margin-bottom:14px;
 }
@@ -146,21 +156,22 @@ button.active{
   font-size:16px;
 }
 .status{
-  color:#22c55e;
+  color:#00bfa5;
   font-weight:bold;
 }
 .signal{
   margin-top:10px;
   padding:10px;
-  border-radius:10px;
-  background:#0f1720;
-  border:1px solid #263445;
+  border-radius:8px;
+  background:#050505;
+  border:1px solid #333;
 }
 .footer{
   padding:12px 20px;
-  border-top:1px solid #263445;
+  border-top:1px solid #202020;
   color:#8b949e;
   font-size:13px;
+  background:#070707;
 }
 @media(max-width:800px){
   .main{
@@ -168,7 +179,7 @@ button.active{
   }
   .sidebar{
     border-left:none;
-    border-top:1px solid #263445;
+    border-top:1px solid #202020;
   }
   .header{
     height:auto;
@@ -180,6 +191,12 @@ button.active{
     flex-wrap:wrap;
     justify-content:center;
   }
+  .candle-wrap{
+    width:34px;
+  }
+  .body{
+    width:34px;
+  }
 }
 </style>
 </head>
@@ -189,6 +206,7 @@ button.active{
     <div class="logo">Forex Indicator</div>
     <div class="controls">
       <select>
+        <option>USD/ZAR (OTC)</option>
         <option>EUR/USD</option>
         <option>GBP/USD</option>
         <option>USD/JPY</option>
@@ -204,18 +222,14 @@ button.active{
     <section class="chart-area">
       <div class="chart-top">
         <div>
-          <div>EUR/USD</div>
-          <div class="price" id="price">1.08420</div>
+          <div>USD/ZAR (OTC)</div>
+          <div class="price" id="price">16.37928</div>
         </div>
         <div class="change">+0.18%</div>
       </div>
       <div class="chart" id="chart">
-        <div class="grid-line" style="top:20%"></div>
-        <div class="grid-line" style="top:40%"></div>
-        <div class="grid-line" style="top:60%"></div>
-        <div class="grid-line" style="top:80%"></div>
         <div class="price-line"></div>
-        <div class="price-tag" id="priceTag">1.08420</div>
+        <div class="price-tag" id="priceTag">16.37928</div>
       </div>
     </section>
     <aside class="sidebar">
@@ -231,10 +245,10 @@ button.active{
       </div>
       <div class="card">
         <h3>Current Candle</h3>
-        <p id="openValue">Open: 1.08390</p>
-        <p id="highValue">High: 1.08460</p>
-        <p id="lowValue">Low: 1.08370</p>
-        <p id="closeValue">Close: 1.08420</p>
+        <p id="openValue">Open: 16.37890</p>
+        <p id="highValue">High: 16.38060</p>
+        <p id="lowValue">Low: 16.37770</p>
+        <p id="closeValue">Close: 16.37928</p>
       </div>
     </aside>
   </main>
@@ -251,37 +265,47 @@ const openValue = document.getElementById("openValue");
 const highValue = document.getElementById("highValue");
 const lowValue = document.getElementById("lowValue");
 const closeValue = document.getElementById("closeValue");
-let price = 1.08420;
-function createFakeCandles(){
-  for(let i = 0; i < 45; i++){
-    const isGreen = Math.random() > 0.5;
+let price = 16.37928;
+const candleData = [
+  {type:"green", total:170, body:95, bottom:235, wickTop:30},
+  {type:"red", total:210, body:150, bottom:135, wickTop:35},
+  {type:"green", total:150, body:90, bottom:130, wickTop:35},
+  {type:"red", total:170, body:110, bottom:80, wickTop:35},
+  {type:"red", total:130, body:55, bottom:60, wickTop:35},
+  {type:"red", total:130, body:70, bottom:35, wickTop:30},
+  {type:"green", total:120, body:55, bottom:45, wickTop:30},
+  {type:"green", total:160, body:45, bottom:120, wickTop:75},
+  {type:"red", total:130, body:6, bottom:115, wickTop:55},
+  {type:"green", total:150, body:65, bottom:80, wickTop:45},
+  {type:"red", total:180, body:65, bottom:95, wickTop:70}
+];
+function createCandles(){
+  candleData.forEach((item, index) => {
     const candle = document.createElement("div");
-    candle.className = "candle-wrap " + (isGreen ? "green" : "red");
-    const totalHeight = Math.floor(Math.random() * 170) + 70;
-    const bodyHeight = Math.floor(Math.random() * 80) + 18;
-    const topWick = Math.floor(Math.random() * 45) + 8;
-    const bottomWick = Math.max(totalHeight - bodyHeight - topWick, 8);
-    const left = 28 + i * 20;
-    const bottom = Math.floor(Math.random() * 210) + 70;
+    candle.className = "candle-wrap " + item.type;
+    const candleWidth = window.innerWidth <= 800 ? 34 : 52;
+    const gap = window.innerWidth <= 800 ? 18 : 24;
+    const left = 45 + index * (candleWidth + gap);
+    const bodyBottom = Math.max(item.total - item.body - item.wickTop, 8);
     candle.style.left = left + "px";
-    candle.style.bottom = bottom + "px";
-    candle.style.height = totalHeight + "px";
+    candle.style.bottom = item.bottom + "px";
+    candle.style.height = item.total + "px";
     candle.innerHTML = `
-      <div class="wick" style="height:${totalHeight}px; bottom:0;"></div>
-      <div class="body" style="height:${bodyHeight}px; bottom:${bottomWick}px;"></div>
+      <div class="wick" style="height:${item.total}px; bottom:0;"></div>
+      <div class="body" style="height:${item.body}px; bottom:${bodyBottom}px;"></div>
     `;
     chart.appendChild(candle);
-  }
+  });
 }
 function updatePrice(){
-  const movement = (Math.random() - 0.5) * 0.0004;
+  const movement = (Math.random() - 0.5) * 0.0020;
   price += movement;
   const formatted = price.toFixed(5);
   priceText.textContent = formatted;
   priceTag.textContent = formatted;
   const open = price - movement;
-  const high = price + Math.random() * 0.0003;
-  const low = price - Math.random() * 0.0003;
+  const high = price + Math.random() * 0.0015;
+  const low = price - Math.random() * 0.0015;
   const close = price;
   openValue.textContent = "Open: " + open.toFixed(5);
   highValue.textContent = "High: " + high.toFixed(5);
@@ -289,13 +313,13 @@ function updatePrice(){
   closeValue.textContent = "Close: " + close.toFixed(5);
   if(movement > 0){
     signal.textContent = "Bullish candle movement detected";
-    signal.style.borderColor = "#22c55e";
+    signal.style.borderColor = "#12b89f";
   }else{
     signal.textContent = "Bearish candle movement detected";
-    signal.style.borderColor = "#ef4444";
+    signal.style.borderColor = "#ff4164";
   }
 }
-createFakeCandles();
+createCandles();
 setInterval(updatePrice, 1200);
 </script>
 </body>
