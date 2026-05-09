@@ -1,12 +1,12 @@
+Aqui está o HTML completo com contador do candle de 1 minuto no canto superior direito do gráfico:
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Forex Indicator App</title>
-
 <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 html,body{height:100%;background:#050505;color:#e6edf3;overflow:hidden}
@@ -21,7 +21,8 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
 .chart-top{display:flex;justify-content:space-between;margin-bottom:10px}
 .price{font-size:24px;font-weight:bold}
 .change{color:#00bfa5}
-.chart-box{flex:1;min-height:520px;background:#000;border:1px solid #202020;border-radius:4px;overflow:hidden}
+.chart-box{flex:1;min-height:520px;background:#000;border:1px solid #202020;border-radius:4px;overflow:hidden;position:relative}
+.candle-timer{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.75);border:1px solid #333;color:#fff;padding:7px 12px;border-radius:6px;font-size:14px;font-weight:bold;z-index:10}
 .sidebar{background:#090909;border-left:1px solid #202020;padding:18px;overflow:auto}
 .card{background:#141414;border:1px solid #2b2b2b;border-radius:8px;padding:16px;margin-bottom:14px}
 .card h3{margin-bottom:12px;font-size:16px}
@@ -30,10 +31,8 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
 .footer{padding:12px 20px;border-top:1px solid #202020;color:#8b949e;font-size:13px;background:#070707}
 </style>
 </head>
-
 <body>
 <div class="app">
-
 <header class="header">
   <div class="logo">Forex Indicator</div>
   <div class="controls">
@@ -51,7 +50,6 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
     <button id="goLive">Go Live</button>
   </div>
 </header>
-
 <main class="main">
 <section class="chart-area">
   <div class="chart-top">
@@ -61,21 +59,19 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
     </div>
     <div class="change">Live</div>
   </div>
-
-  <div class="chart-box" id="chart"></div>
+  <div class="chart-box" id="chart">
+    <div class="candle-timer" id="candleTimer">00:--</div>
+  </div>
 </section>
-
 <aside class="sidebar">
   <div class="card">
     <h3>Market Status</h3>
     <p class="status" id="marketStatus">Connecting...</p>
   </div>
-
   <div class="card">
     <h3>Your Indicator</h3>
     <div class="signal" id="signal">Waiting for live candle...</div>
   </div>
-
   <div class="card">
     <h3>Current Candle</h3>
     <p id="openValue">Open: --</p>
@@ -85,16 +81,12 @@ button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
   </div>
 </aside>
 </main>
-
 <footer class="footer">
   Live Forex prototype — TradingView Lightweight Charts + Twelve Data.
 </footer>
-
 </div>
-
 <script>
 const API_KEY = "8e71c63cbf244895934f71cbdd64611e";
-
 const chartContainer = document.getElementById("chart");
 const pairSelect = document.getElementById("pairSelect");
 const pairName = document.getElementById("pairName");
@@ -102,38 +94,33 @@ const priceText = document.getElementById("price");
 const marketStatus = document.getElementById("marketStatus");
 const signal = document.getElementById("signal");
 const goLive = document.getElementById("goLive");
-
+const candleTimer = document.getElementById("candleTimer");
 const openValue = document.getElementById("openValue");
 const highValue = document.getElementById("highValue");
 const lowValue = document.getElementById("lowValue");
 const closeValue = document.getElementById("closeValue");
-
 let socket = null;
 let currentSymbol = "EUR/USD";
 let candles = [];
-
 const chart = LightweightCharts.createChart(chartContainer, {
-  layout:{
-    background:{color:"#000000"},
-    textColor:"#8b949e"
-  },
+  layout:{background:{color:"#000000"},textColor:"#8b949e"},
   grid:{
     vertLines:{color:"rgba(255,255,255,0.08)"},
     horzLines:{color:"rgba(255,255,255,0.08)"}
   },
-  crosshair:{
-    mode:LightweightCharts.CrosshairMode.Normal
-  },
+  crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
   rightPriceScale:{
     borderColor:"#202020",
-    visible:true
+    visible:true,
+    autoScale:true,
+    scaleMargins:{top:0.18,bottom:0.18}
   },
   timeScale:{
     borderColor:"#202020",
     timeVisible:true,
     secondsVisible:false,
-    rightOffset:22,
-    barSpacing:18,
+    rightOffset:28,
+    barSpacing:24,
     fixLeftEdge:false,
     fixRightEdge:false
   },
@@ -149,8 +136,16 @@ const chart = LightweightCharts.createChart(chartContainer, {
     pinch:true
   }
 });
-
+chart.priceScale("right").applyOptions({
+  autoScale:true,
+  scaleMargins:{top:0.18,bottom:0.18}
+});
+chart.timeScale().applyOptions({
+  barSpacing:24,
+  rightOffset:28
+});
 const candleSeries = chart.addCandlestickSeries({
+  priceScaleId:"right",
   upColor:"#12b89f",
   downColor:"#ff4164",
   borderUpColor:"#12b89f",
@@ -160,26 +155,25 @@ const candleSeries = chart.addCandlestickSeries({
   priceLineVisible:true,
   priceLineColor:"rgba(255,255,255,0.7)",
   priceLineWidth:1,
-  priceFormat:{
-    type:"price",
-    precision:5,
-    minMove:0.00001
-  }
+  priceFormat:{type:"price",precision:5,minMove:0.00001}
 });
-
 function toUnixTime(datetime){
   return Math.floor(new Date(datetime.replace(" ","T") + "Z").getTime() / 1000);
 }
-
+function updateCandleTimer(){
+  const now = Math.floor(Date.now() / 1000);
+  const secondsLeft = 60 - (now % 60);
+  candleTimer.textContent = "00:" + String(secondsLeft).padStart(2,"0");
+}
+setInterval(updateCandleTimer, 1000);
+updateCandleTimer();
 function updatePanel(candle){
   const formatted = candle.close.toFixed(5);
-
   priceText.textContent = formatted;
   openValue.textContent = "Open: " + candle.open.toFixed(5);
   highValue.textContent = "High: " + candle.high.toFixed(5);
   lowValue.textContent = "Low: " + candle.low.toFixed(5);
   closeValue.textContent = "Close: " + candle.close.toFixed(5);
-
   if(candle.close >= candle.open){
     signal.textContent = "Bullish candle movement detected";
     signal.style.borderColor = "#12b89f";
@@ -188,28 +182,23 @@ function updatePanel(candle){
     signal.style.borderColor = "#ff4164";
   }
 }
-
 async function loadHistoricalCandles(symbol){
   marketStatus.textContent = "Loading candles...";
-
   const url =
     "https://api.twelvedata.com/time_series" +
     "?symbol=" + encodeURIComponent(symbol) +
     "&interval=1min" +
     "&outputsize=120" +
     "&apikey=" + API_KEY;
-
   try{
     const response = await fetch(url);
     const data = await response.json();
-
     if(data.status === "error" || !data.values){
       marketStatus.textContent = "API error";
       signal.textContent = data.message || "Error loading data";
       signal.style.borderColor = "#ff4164";
       return;
     }
-
     candles = data.values.reverse().map(item => ({
       time: toUnixTime(item.datetime),
       open: Number(item.open),
@@ -217,39 +206,30 @@ async function loadHistoricalCandles(symbol){
       low: Number(item.low),
       close: Number(item.close)
     }));
-
     candleSeries.setData(candles);
-
     const last = candles[candles.length - 1];
     updatePanel(last);
-
     chart.timeScale().fitContent();
     chart.timeScale().scrollToRealTime();
-
     marketStatus.textContent = "Online";
-
   }catch(error){
     marketStatus.textContent = "API error";
     signal.textContent = "Could not load Forex data.";
     signal.style.borderColor = "#ff4164";
   }
 }
-
 function updateLivePrice(newPrice){
   if(candles.length === 0) return;
-
   const now = Math.floor(Date.now() / 1000);
   const currentMinute = Math.floor(now / 60) * 60;
-
   let last = candles[candles.length - 1];
-
   if(currentMinute > last.time){
     last = {
-      time: currentMinute,
-      open: last.close,
-      high: newPrice,
-      low: newPrice,
-      close: newPrice
+      time:currentMinute,
+      open:last.close,
+      high:newPrice,
+      low:newPrice,
+      close:newPrice
     };
     candles.push(last);
   }else{
@@ -257,81 +237,61 @@ function updateLivePrice(newPrice){
     last.high = Math.max(last.high, newPrice);
     last.low = Math.min(last.low, newPrice);
   }
-
   candleSeries.update(last);
   updatePanel(last);
 }
-
 function connectWebSocket(symbol){
-  if(socket){
-    socket.close();
-  }
-
+  if(socket){socket.close()}
   marketStatus.textContent = "Connecting...";
-
   socket = new WebSocket(
     "wss://ws.twelvedata.com/v1/quotes/price?apikey=" + API_KEY
   );
-
   socket.onopen = () => {
     marketStatus.textContent = "Online";
-
     socket.send(JSON.stringify({
       action:"subscribe",
       params:{symbols:symbol}
     }));
   };
-
   socket.onmessage = event => {
     const data = JSON.parse(event.data);
-
     if(data.event === "price" && data.price){
       updateLivePrice(Number(data.price));
     }
   };
-
   socket.onerror = () => {
     marketStatus.textContent = "Connection error";
   };
-
   socket.onclose = () => {
     marketStatus.textContent = "Disconnected";
   };
 }
-
 async function start(symbol){
   currentSymbol = symbol;
   pairName.textContent = symbol;
   pairSelect.value = symbol;
   candles = [];
   candleSeries.setData([]);
-
   await loadHistoricalCandles(symbol);
   connectWebSocket(symbol);
 }
-
 goLive.addEventListener("click", () => {
   chart.timeScale().scrollToRealTime();
 });
-
 pairSelect.addEventListener("change", () => {
   start(pairSelect.value);
 });
-
 window.addEventListener("resize", () => {
   chart.applyOptions({
     width:chartContainer.clientWidth,
     height:chartContainer.clientHeight
   });
 });
-
 chart.applyOptions({
   width:chartContainer.clientWidth,
   height:chartContainer.clientHeight
 });
-
 start(currentSymbol);
 </script>
-
 </body>
 </html>
