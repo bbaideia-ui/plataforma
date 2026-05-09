@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -155,7 +154,7 @@ button.active{
   position:absolute;
   left:0;
   right:0;
-  top:58%;
+  top:55%;
   height:1px;
   background:rgba(255,255,255,0.55);
   border-top:1px dashed rgba(255,255,255,0.35);
@@ -165,7 +164,7 @@ button.active{
 .price-tag{
   position:absolute;
   right:0;
-  top:calc(58% - 15px);
+  top:calc(55% - 15px);
   background:#d7d7d7;
   color:#222;
   padding:7px 14px;
@@ -218,7 +217,6 @@ button.active{
 }
 
 @media(max-width:800px){
-
   body{
     overflow:auto;
   }
@@ -265,7 +263,6 @@ button.active{
 <div class="app">
 
   <header class="header">
-
     <div class="logo">Forex Indicator</div>
 
     <div class="controls">
@@ -282,7 +279,6 @@ button.active{
       <button>15m</button>
       <button>1h</button>
     </div>
-
   </header>
 
   <main class="main">
@@ -299,13 +295,8 @@ button.active{
       </div>
 
       <div class="chart" id="chart">
-
         <div class="price-line"></div>
-
-        <div class="price-tag" id="priceTag">
-          16.37928
-        </div>
-
+        <div class="price-tag" id="priceTag">16.37928</div>
       </div>
 
     </section>
@@ -319,7 +310,6 @@ button.active{
 
       <div class="card">
         <h3>Your Indicator</h3>
-
         <div class="signal" id="signal">
           Waiting for candle reading...
         </div>
@@ -327,7 +317,6 @@ button.active{
 
       <div class="card">
         <h3>Current Candle</h3>
-
         <p id="openValue">Open: 16.37890</p>
         <p id="highValue">High: 16.38060</p>
         <p id="lowValue">Low: 16.37770</p>
@@ -348,7 +337,6 @@ button.active{
 const chart = document.getElementById("chart");
 const priceText = document.getElementById("price");
 const priceTag = document.getElementById("priceTag");
-
 const signal = document.getElementById("signal");
 
 const openValue = document.getElementById("openValue");
@@ -359,128 +347,72 @@ const closeValue = document.getElementById("closeValue");
 let price = 16.37928;
 
 const candleData = [
-  {type:"green", total:170, body:95, bottom:235, wickTop:30},
-  {type:"red", total:210, body:150, bottom:135, wickTop:35},
-  {type:"green", total:150, body:90, bottom:130, wickTop:35},
-  {type:"red", total:170, body:110, bottom:80, wickTop:35},
-  {type:"red", total:130, body:55, bottom:60, wickTop:35},
-  {type:"red", total:130, body:70, bottom:35, wickTop:30},
-  {type:"green", total:120, body:55, bottom:45, wickTop:30},
-  {type:"green", total:160, body:45, bottom:120, wickTop:75},
-  {type:"red", total:130, body:6, bottom:115, wickTop:55},
-  {type:"green", total:150, body:65, bottom:80, wickTop:45},
-  {type:"red", total:180, body:65, bottom:95, wickTop:70}
+  {type:"green", total:170, body:95, bottom:370, wickTop:30},
+  {type:"red", total:210, body:150, bottom:270, wickTop:35},
+  {type:"green", total:150, body:90, bottom:265, wickTop:35},
+  {type:"red", total:170, body:110, bottom:220, wickTop:35},
+  {type:"red", total:130, body:55, bottom:200, wickTop:35},
+  {type:"red", total:130, body:70, bottom:175, wickTop:30},
+  {type:"green", total:120, body:55, bottom:185, wickTop:30},
+  {type:"green", total:160, body:45, bottom:260, wickTop:75},
+  {type:"red", total:130, body:6, bottom:255, wickTop:55},
+  {type:"green", total:150, body:65, bottom:220, wickTop:45},
+  {type:"red", total:180, body:65, bottom:235, wickTop:70}
 ];
 
 function createCandles(){
-
   candleData.forEach((item, index) => {
-
     const candle = document.createElement("div");
+    candle.className = "candle-wrap " + item.type;
 
-    candle.className =
-      "candle-wrap " + item.type;
+    const candleWidth = window.innerWidth <= 800 ? 28 : 42;
+    const gap = window.innerWidth <= 800 ? 16 : 22;
 
-    const candleWidth =
-      window.innerWidth <= 800 ? 28 : 42;
-
-    const gap =
-      window.innerWidth <= 800 ? 16 : 22;
-
-    const left =
-      45 + index * (candleWidth + gap);
-
-    const bodyBottom =
-      Math.max(
-        item.total - item.body - item.wickTop,
-        8
-      );
+    const left = 45 + index * (candleWidth + gap);
+    const bodyBottom = Math.max(item.total - item.body - item.wickTop, 8);
 
     candle.style.left = left + "px";
-
     candle.style.bottom = item.bottom + "px";
-
     candle.style.height = item.total + "px";
 
     candle.innerHTML = `
-      <div class="wick"
-        style="
-          height:${item.total}px;
-          bottom:0;
-        ">
-      </div>
-
-      <div class="body"
-        style="
-          height:${item.body}px;
-          bottom:${bodyBottom}px;
-        ">
-      </div>
+      <div class="wick" style="height:${item.total}px; bottom:0;"></div>
+      <div class="body" style="height:${item.body}px; bottom:${bodyBottom}px;"></div>
     `;
 
     chart.appendChild(candle);
-
   });
-
 }
 
 function updatePrice(){
-
-  const movement =
-    (Math.random() - 0.5) * 0.0020;
-
+  const movement = (Math.random() - 0.5) * 0.0020;
   price += movement;
 
-  const formatted =
-    price.toFixed(5);
+  const formatted = price.toFixed(5);
 
   priceText.textContent = formatted;
-
   priceTag.textContent = formatted;
 
   const open = price - movement;
-
-  const high =
-    price + Math.random() * 0.0015;
-
-  const low =
-    price - Math.random() * 0.0015;
-
+  const high = price + Math.random() * 0.0015;
+  const low = price - Math.random() * 0.0015;
   const close = price;
 
-  openValue.textContent =
-    "Open: " + open.toFixed(5);
-
-  highValue.textContent =
-    "High: " + high.toFixed(5);
-
-  lowValue.textContent =
-    "Low: " + low.toFixed(5);
-
-  closeValue.textContent =
-    "Close: " + close.toFixed(5);
+  openValue.textContent = "Open: " + open.toFixed(5);
+  highValue.textContent = "High: " + high.toFixed(5);
+  lowValue.textContent = "Low: " + low.toFixed(5);
+  closeValue.textContent = "Close: " + close.toFixed(5);
 
   if(movement > 0){
-
-    signal.textContent =
-      "Bullish candle movement detected";
-
-    signal.style.borderColor =
-      "#12b89f";
-
+    signal.textContent = "Bullish candle movement detected";
+    signal.style.borderColor = "#12b89f";
   }else{
-
-    signal.textContent =
-      "Bearish candle movement detected";
-
-    signal.style.borderColor =
-      "#ff4164";
+    signal.textContent = "Bearish candle movement detected";
+    signal.style.borderColor = "#ff4164";
   }
-
 }
 
 createCandles();
-
 setInterval(updatePrice, 1200);
 </script>
 
