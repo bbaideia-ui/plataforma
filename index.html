@@ -1,176 +1,41 @@
+Sim. Agora eu ajustei para o gráfico usar candles reais da API time_series, sem construir vela manualmente pelo JavaScript.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Forex Indicator App</title>
-
 <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
-
 <style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  font-family:Arial,sans-serif
-}
-
-html,body{
-  height:100%;
-  background:#050505;
-  color:#e6edf3;
-  overflow:hidden
-}
-
-.app{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  background:#050505
-}
-
-.header{
-  height:64px;
-  background:#070707;
-  border-bottom:1px solid #1c1c1c;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 20px;
-  flex-shrink:0
-}
-
-.logo{
-  font-size:20px;
-  font-weight:700
-}
-
-.controls{
-  display:flex;
-  gap:10px;
-  align-items:center
-}
-
-select,button{
-  background:#111;
-  color:#fff;
-  border:1px solid #333;
-  padding:9px 12px;
-  border-radius:6px
-}
-
-button.active,#goLive{
-  background:#00bfa5;
-  border-color:#00bfa5
-}
-
-.main{
-  flex:1;
-  display:grid;
-  grid-template-columns:1fr 280px;
-  min-height:0
-}
-
-.chart-area{
-  padding:14px;
-  background:#000;
-  display:flex;
-  flex-direction:column;
-  min-height:0
-}
-
-.chart-top{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:10px
-}
-
-.price{
-  font-size:24px;
-  font-weight:bold
-}
-
-.change{
-  color:#00bfa5
-}
-
-.chart-box{
-  flex:1;
-  min-height:520px;
-  background:#000;
-  border:1px solid #202020;
-  border-radius:4px;
-  overflow:hidden;
-  position:relative
-}
-
-.candle-timer{
-  position:absolute;
-  top:14px;
-  right:14px;
-  background:rgba(0,0,0,.75);
-  border:1px solid #333;
-  color:#fff;
-  padding:7px 12px;
-  border-radius:6px;
-  font-size:14px;
-  font-weight:bold;
-  z-index:10
-}
-
-.sidebar{
-  background:#090909;
-  border-left:1px solid #202020;
-  padding:18px;
-  overflow:auto
-}
-
-.card{
-  background:#141414;
-  border:1px solid #2b2b2b;
-  border-radius:8px;
-  padding:16px;
-  margin-bottom:14px
-}
-
-.card h3{
-  margin-bottom:12px;
-  font-size:16px
-}
-
-.status{
-  color:#00bfa5;
-  font-weight:bold
-}
-
-.signal{
-  margin-top:10px;
-  padding:10px;
-  border-radius:8px;
-  background:#050505;
-  border:1px solid #333
-}
-
-.footer{
-  padding:12px 20px;
-  border-top:1px solid #202020;
-  color:#8b949e;
-  font-size:13px;
-  background:#070707
-}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+html,body{height:100%;background:#050505;color:#e6edf3;overflow:hidden}
+.app{height:100vh;display:flex;flex-direction:column;background:#050505}
+.header{height:64px;background:#070707;border-bottom:1px solid #1c1c1c;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.logo{font-size:20px;font-weight:700}
+.controls{display:flex;gap:10px;align-items:center}
+select,button{background:#111;color:#fff;border:1px solid #333;padding:9px 12px;border-radius:6px}
+button.active,#goLive{background:#00bfa5;border-color:#00bfa5}
+.main{flex:1;display:grid;grid-template-columns:1fr 280px;min-height:0}
+.chart-area{padding:14px;background:#000;display:flex;flex-direction:column;min-height:0}
+.chart-top{display:flex;justify-content:space-between;margin-bottom:10px}
+.price{font-size:24px;font-weight:bold}
+.change{color:#00bfa5}
+.chart-box{flex:1;min-height:520px;background:#000;border:1px solid #202020;border-radius:4px;overflow:hidden;position:relative}
+.candle-timer{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.75);border:1px solid #333;color:#fff;padding:7px 12px;border-radius:6px;font-size:14px;font-weight:bold;z-index:10}
+.sidebar{background:#090909;border-left:1px solid #202020;padding:18px;overflow:auto}
+.card{background:#141414;border:1px solid #2b2b2b;border-radius:8px;padding:16px;margin-bottom:14px}
+.card h3{margin-bottom:12px;font-size:16px}
+.status{color:#00bfa5;font-weight:bold}
+.signal{margin-top:10px;padding:10px;border-radius:8px;background:#050505;border:1px solid #333}
+.footer{padding:12px 20px;border-top:1px solid #202020;color:#8b949e;font-size:13px;background:#070707}
 </style>
 </head>
-
 <body>
-
 <div class="app">
-
 <header class="header">
-
   <div class="logo">Forex Indicator</div>
-
   <div class="controls">
-
     <select id="pairSelect">
       <option value="EUR/USD" selected>EUR/USD</option>
       <option value="GBP/USD">GBP/USD</option>
@@ -178,72 +43,50 @@ button.active,#goLive{
       <option value="USD/BRL">USD/BRL</option>
       <option value="USD/ZAR">USD/ZAR</option>
     </select>
-
     <button class="tf active" data-interval="1min" data-seconds="60">1m</button>
     <button class="tf" data-interval="5min" data-seconds="300">5m</button>
     <button class="tf" data-interval="15min" data-seconds="900">15m</button>
     <button class="tf" data-interval="1h" data-seconds="3600">1h</button>
-
     <button id="goLive">Go Live</button>
-
   </div>
-
 </header>
-
 <main class="main">
-
 <section class="chart-area">
-
   <div class="chart-top">
     <div>
       <div id="pairName">EUR/USD</div>
       <div class="price" id="price">Loading...</div>
     </div>
-
     <div class="change">Live</div>
   </div>
-
   <div class="chart-box" id="chart">
     <div class="candle-timer" id="candleTimer">00:--</div>
   </div>
-
 </section>
-
 <aside class="sidebar">
-
   <div class="card">
     <h3>Market Status</h3>
     <p class="status" id="marketStatus">Connecting...</p>
   </div>
-
   <div class="card">
     <h3>Your Indicator</h3>
-    <div class="signal" id="signal">Waiting for live candle...</div>
+    <div class="signal" id="signal">Waiting for real candle...</div>
   </div>
-
   <div class="card">
     <h3>Current Candle</h3>
-
     <p id="openValue">Open: --</p>
     <p id="highValue">High: --</p>
     <p id="lowValue">Low: --</p>
     <p id="closeValue">Close: --</p>
   </div>
-
 </aside>
-
 </main>
-
 <footer class="footer">
-  Live Forex prototype — TradingView Lightweight Charts + Twelve Data.
+  Real OHLC candles — Twelve Data time_series + Lightweight Charts.
 </footer>
-
 </div>
-
 <script>
-
 const API_KEY = "8e71c63cbf244895934f71cbdd64611e";
-
 const chartContainer = document.getElementById("chart");
 const pairSelect = document.getElementById("pairSelect");
 const pairName = document.getElementById("pairName");
@@ -252,59 +95,35 @@ const marketStatus = document.getElementById("marketStatus");
 const signal = document.getElementById("signal");
 const goLive = document.getElementById("goLive");
 const candleTimer = document.getElementById("candleTimer");
-
 const openValue = document.getElementById("openValue");
 const highValue = document.getElementById("highValue");
 const lowValue = document.getElementById("lowValue");
 const closeValue = document.getElementById("closeValue");
-
-let socket = null;
 let currentSymbol = "EUR/USD";
-
 let currentInterval = "1min";
 let currentIntervalSeconds = 60;
-
 let candles = [];
-
+let refreshTimer = null;
 const chart = LightweightCharts.createChart(chartContainer, {
-
   layout:{
     background:{color:"#000000"},
     textColor:"#8b949e"
   },
-
   grid:{
     vertLines:{color:"rgba(255,255,255,0.08)"},
     horzLines:{color:"rgba(255,255,255,0.08)"}
   },
-
   crosshair:{
     mode:LightweightCharts.CrosshairMode.Normal,
-
-    vertLine:{
-      color:"rgba(255,255,255,0.35)",
-      width:1,
-      style:2
-    },
-
-    horzLine:{
-      color:"rgba(255,255,255,0.35)",
-      width:1,
-      style:2
-    }
+    vertLine:{color:"rgba(255,255,255,0.35)",width:1,style:2},
+    horzLine:{color:"rgba(255,255,255,0.35)",width:1,style:2}
   },
-
   rightPriceScale:{
     borderColor:"#202020",
     visible:true,
     autoScale:true,
-
-    scaleMargins:{
-      top:0.12,
-      bottom:0.12
-    }
+    scaleMargins:{top:0.12,bottom:0.12}
   },
-
   timeScale:{
     borderColor:"#202020",
     timeVisible:true,
@@ -314,378 +133,152 @@ const chart = LightweightCharts.createChart(chartContainer, {
     fixLeftEdge:false,
     fixRightEdge:false
   },
-
   handleScroll:{
     mouseWheel:true,
     pressedMouseMove:true,
     horzTouchDrag:true,
     vertTouchDrag:false
   },
-
   handleScale:{
     axisPressedMouseMove:true,
     mouseWheel:true,
     pinch:true
   }
-
 });
-
 const candleSeries = chart.addCandlestickSeries({
-
   priceScaleId:"right",
-
   upColor:"#12b89f",
   downColor:"#ff4164",
-
   borderUpColor:"#12b89f",
   borderDownColor:"#ff4164",
-
   wickUpColor:"#12b89f",
   wickDownColor:"#ff4164",
-
   priceLineVisible:true,
   priceLineColor:"rgba(255,255,255,0.75)",
   priceLineWidth:1,
-
   priceFormat:{
     type:"price",
     precision:5,
     minMove:0.00001
   }
-
 });
-
 function toUnixTime(datetime){
-
-  return Math.floor(
-    new Date(datetime.replace(" ","T") + "Z").getTime() / 1000
-  );
-
+  return Math.floor(new Date(datetime.replace(" ","T") + "Z").getTime() / 1000);
 }
-
 function formatTimer(seconds){
-
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
-
-  return String(m).padStart(2,"0")
-    + ":" +
-    String(s).padStart(2,"0");
-
+  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
 }
-
 function updateCandleTimer(){
-
   const now = Math.floor(Date.now() / 1000);
-
-  const secondsLeft =
-    currentIntervalSeconds -
-    (now % currentIntervalSeconds);
-
+  const secondsLeft = currentIntervalSeconds - (now % currentIntervalSeconds);
   candleTimer.textContent = formatTimer(secondsLeft);
-
 }
-
-/* AQUI ESTÁ A CORREÇÃO:
-   não forçamos mais vela nova artificialmente */
-
 setInterval(updateCandleTimer,1000);
-
 updateCandleTimer();
-
 function updatePanel(candle){
-
-  priceText.textContent =
-    candle.close.toFixed(5);
-
-  openValue.textContent =
-    "Open: " + candle.open.toFixed(5);
-
-  highValue.textContent =
-    "High: " + candle.high.toFixed(5);
-
-  lowValue.textContent =
-    "Low: " + candle.low.toFixed(5);
-
-  closeValue.textContent =
-    "Close: " + candle.close.toFixed(5);
-
+  priceText.textContent = candle.close.toFixed(5);
+  openValue.textContent = "Open: " + candle.open.toFixed(5);
+  highValue.textContent = "High: " + candle.high.toFixed(5);
+  lowValue.textContent = "Low: " + candle.low.toFixed(5);
+  closeValue.textContent = "Close: " + candle.close.toFixed(5);
   if(candle.close >= candle.open){
-
-    signal.textContent =
-      "Bullish candle movement detected";
-
-    signal.style.borderColor =
-      "#12b89f";
-
+    signal.textContent = "Real bullish candle";
+    signal.style.borderColor = "#12b89f";
   }else{
-
-    signal.textContent =
-      "Bearish candle movement detected";
-
-    signal.style.borderColor =
-      "#ff4164";
-
+    signal.textContent = "Real bearish candle";
+    signal.style.borderColor = "#ff4164";
   }
-
 }
-
-async function loadHistoricalCandles(symbol){
-
-  marketStatus.textContent =
-    "Loading candles...";
-
+async function fetchRealCandles(symbol, silent=false){
+  if(!silent){
+    marketStatus.textContent = "Loading real candles...";
+  }
   const url =
     "https://api.twelvedata.com/time_series" +
     "?symbol=" + encodeURIComponent(symbol) +
     "&interval=" + currentInterval +
     "&outputsize=160" +
     "&apikey=" + API_KEY;
-
   try{
-
     const response = await fetch(url);
-
     const data = await response.json();
-
     if(data.status === "error" || !data.values){
-
-      marketStatus.textContent =
-        "API error";
-
-      signal.textContent =
-        data.message || "Error loading data";
-
-      signal.style.borderColor =
-        "#ff4164";
-
+      marketStatus.textContent = "API error";
+      signal.textContent = data.message || "Error loading real candle data";
+      signal.style.borderColor = "#ff4164";
       return;
-
     }
-
-    candles = data.values.reverse().map(item => ({
-
+    const newCandles = data.values.reverse().map(item => ({
       time:toUnixTime(item.datetime),
-
       open:Number(item.open),
       high:Number(item.high),
       low:Number(item.low),
       close:Number(item.close)
-
     }));
-
+    candles = newCandles;
     candleSeries.setData(candles);
-
     const last = candles[candles.length - 1];
-
-    updatePanel(last);
-
-    chart.timeScale().scrollToRealTime();
-
-    marketStatus.textContent =
-      "Online";
-
-  }catch(error){
-
-    marketStatus.textContent =
-      "API error";
-
-    signal.textContent =
-      "Could not load Forex data.";
-
-    signal.style.borderColor =
-      "#ff4164";
-
-  }
-
-}
-
-function updateLivePrice(newPrice){
-
-  if(candles.length === 0) return;
-
-  const now = Math.floor(Date.now() / 1000);
-
-  const currentCandleTime =
-    Math.floor(now / currentIntervalSeconds)
-    * currentIntervalSeconds;
-
-  let last = candles[candles.length - 1];
-
-  if(currentCandleTime > last.time){
-
-    last = {
-
-      time:currentCandleTime,
-
-      open:last.close,
-      high:newPrice,
-      low:newPrice,
-      close:newPrice
-
-    };
-
-    candles.push(last);
-
-  }else{
-
-    last.close = newPrice;
-
-    last.high =
-      Math.max(last.high,newPrice);
-
-    last.low =
-      Math.min(last.low,newPrice);
-
-  }
-
-  candleSeries.update(last);
-
-  updatePanel(last);
-
-}
-
-function connectWebSocket(symbol){
-
-  if(socket){
-    socket.close();
-  }
-
-  marketStatus.textContent =
-    "Connecting...";
-
-  socket = new WebSocket(
-    "wss://ws.twelvedata.com/v1/quotes/price?apikey="
-    + API_KEY
-  );
-
-  socket.onopen = () => {
-
-    marketStatus.textContent =
-      "Online";
-
-    socket.send(JSON.stringify({
-
-      action:"subscribe",
-
-      params:{
-        symbols:symbol
-      }
-
-    }));
-
-  };
-
-  socket.onmessage = event => {
-
-    const data =
-      JSON.parse(event.data);
-
-    if(data.event === "price"
-      && data.price){
-
-      updateLivePrice(
-        Number(data.price)
-      );
-
+    if(last){
+      updatePanel(last);
     }
-
-  };
-
-  socket.onerror = () => {
-
-    marketStatus.textContent =
-      "Connection error";
-
-  };
-
-  socket.onclose = () => {
-
-    marketStatus.textContent =
-      "Disconnected";
-
-  };
-
+    marketStatus.textContent = "Online — real OHLC candles";
+  }catch(error){
+    marketStatus.textContent = "API error";
+    signal.textContent = "Could not load real Forex candles.";
+    signal.style.borderColor = "#ff4164";
+  }
 }
-
+function startRealCandleRefresh(){
+  if(refreshTimer){
+    clearInterval(refreshTimer);
+  }
+  refreshTimer = setInterval(() => {
+    fetchRealCandles(currentSymbol,true);
+  }, 15000);
+}
 async function start(symbol){
-
   currentSymbol = symbol;
-
   pairName.textContent = symbol;
-
   pairSelect.value = symbol;
-
   candles = [];
-
   candleSeries.setData([]);
-
-  await loadHistoricalCandles(symbol);
-
-  connectWebSocket(symbol);
-
-}
-
-document.querySelectorAll(".tf")
-.forEach(button => {
-
-  button.addEventListener("click", () => {
-
-    document.querySelectorAll(".tf")
-    .forEach(btn =>
-      btn.classList.remove("active")
-    );
-
-    button.classList.add("active");
-
-    currentInterval =
-      button.dataset.interval;
-
-    currentIntervalSeconds =
-      Number(button.dataset.seconds);
-
-    updateCandleTimer();
-
-    start(currentSymbol);
-
+  await fetchRealCandles(symbol,false);
+  chart.timeScale().applyOptions({
+    rightOffset:24,
+    barSpacing:20
   });
-
+  chart.timeScale().scrollToRealTime();
+  startRealCandleRefresh();
+}
+document.querySelectorAll(".tf").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".tf").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+    currentInterval = button.dataset.interval;
+    currentIntervalSeconds = Number(button.dataset.seconds);
+    updateCandleTimer();
+    start(currentSymbol);
+  });
 });
-
 goLive.addEventListener("click", () => {
-
-  chart.timeScale()
-    .scrollToRealTime();
-
+  chart.timeScale().scrollToRealTime();
 });
-
 pairSelect.addEventListener("change", () => {
-
   start(pairSelect.value);
-
 });
-
 window.addEventListener("resize", () => {
-
   chart.applyOptions({
-
     width:chartContainer.clientWidth,
     height:chartContainer.clientHeight
-
   });
-
 });
-
 chart.applyOptions({
-
   width:chartContainer.clientWidth,
   height:chartContainer.clientHeight
-
 });
-
 start(currentSymbol);
-
 </script>
-
 </body>
 </html>
